@@ -1,0 +1,8 @@
+prefix=/home/huy/plan_ws/install
+
+Name: chefbot_description
+Description: Description of chefbot_description
+Version: 0.0.0
+Cflags: 
+Libs: -L/home/huy/plan_ws/install/lib 
+Requires: 

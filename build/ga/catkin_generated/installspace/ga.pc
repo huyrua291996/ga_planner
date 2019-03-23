@@ -1,0 +1,8 @@
+prefix=/home/huy/plan_ws/install
+
+Name: ga
+Description: Description of ga
+Version: 0.0.0
+Cflags: -I/home/huy/plan_ws/install/include
+Libs: -L/home/huy/plan_ws/install/lib -lga
+Requires: nav_core roscpp rospy std_msgs costmap_2d dynamic_reconfigure geometry_msgs navfn nav_msgs pluginlib

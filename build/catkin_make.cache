@@ -1,0 +1,2 @@
+chefbot_description:chefbot_gazebo:ga
+-DCATKIN_DEVEL_PREFIX=/home/huy/plan_ws/devel -DCMAKE_INSTALL_PREFIX=/home/huy/plan_ws/install -G Unix Makefiles
