@@ -37,7 +37,7 @@ GA::~GA(void) {
 }
 
 GA::GA(int numberOfIterations, uint populationS, int crossType, float crossProb, float mutationProb, int mutationIterationNumber, float minInitialPathCost, int radius_) {
-	setNumberOfIterations(numberOfIterations);
+	
 	setPopulationSize(populationS);
 	setCrossoverType(crossType);
 	setCrossoverProbability(crossProb);
@@ -45,16 +45,22 @@ GA::GA(int numberOfIterations, uint populationS, int crossType, float crossProb,
 	setMutationIteration(mutationIterationNumber);
 	setMinimumInitialPathCost(minInitialPathCost);
 	setRadius(radius_);
+	setNumberOfIterations(numberOfIterations);
 }
 
 GA::GA(int numberOfIterations, uint populationS, float crossProb,float mutationProb, int mutationIterationNumber, int radius_) {
-	setNumberOfIterations(numberOfIterations);
+	
 	setPopulationSize(populationS);
 	setCrossoverProbability(crossProb);
 	setMutationProbability(mutationProb);
 	setMutationIteration(mutationIterationNumber);
 	setRadius(radius_);
+	setNumberOfIterations(numberOfIterations);
 }
+
+/*void GA::setNumberOfIterations(int numberOfIterations) {
+	numberOfIterationS = numberOfIterations;
+}*/
 
 void GA::setPopulationSize(uint populationS) {
 	populationSize = populationS;
@@ -87,6 +93,10 @@ void GA::setRadius(int radius_) {
 uint GA::getPopulationSize() {
 	return populationSize;
 }
+
+/*int GA::getNumberOfIterations(){
+	return numberOfIterationS;
+}*/
 
 int GA::getCrossoverType() {
 	return crossoverType;

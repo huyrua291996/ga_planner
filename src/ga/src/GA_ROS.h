@@ -125,14 +125,14 @@ public:
   //return min(abs(x1-x2),abs(y1-y2))*sqrt(2) + max(abs(x1-x2),abs(y1-y2))-min(abs(x1-x2),abs(y1-y2));
   }*/
   //void addNeighborCellToOpenList(multiset<cells> & OPL, int neighborCell, int goalCell, float g_score[]);
-  //vector <int> findFreeNeighborCell (int CellID);
-  //bool isStartAndGoalCellsValid(int startCell,int goalCell); 
-  /*float getMoveCost(int CellID1, int CellID2);
+  vector <int> findFreeNeighborCell (int CellID);
+  bool isStartAndGoalCellsValid(int startCell,int goalCell); 
+  float getMoveCost(int CellID1, int CellID2);
   float getMoveCost(int i1, int j1, int i2, int j2);
   bool isFree(int CellID); //returns true if the cell is Free
-  bool isFree(int i, int j); */
+  bool isFree(int i, int j); 
 
-  /*int getCellIndex(int i,int j) //get the index of the cell to be used in Path
+  int getCellIndex(int i,int j) //get the index of the cell to be used in Path
   {
    return (i*width)+j;  
   }
@@ -143,9 +143,10 @@ public:
   int getCellColID(int index)//get colunm ID from cell index
   {
     return index%width;
-  }*/
-  OccupancyGridMap* OGM;
-  GA* ga;
+  }
+private:
+  //OccupancyGridMap* OGM;
+  //GA* ga;
   float originX;
   float originY;
   float resolution;
@@ -154,6 +155,7 @@ public:
   costmap_2d::Costmap2D* costmap_;
   //base_local_planner::WorldModel* world_model_;
   bool initialized_;
+  int** OGM_data;
   int width;
   int height;
 };

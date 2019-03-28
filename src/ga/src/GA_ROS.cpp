@@ -16,13 +16,20 @@
 
 #include <pluginlib/class_list_macros.h>
 //register this planner as a BaseGlobalPlanner plugin
-PLUGINLIB_EXPORT_CLASS(GA_planner::GAPlanner, nav_core::BaseGlobalPlanner)
 
+
+
+
+
+//inline vector <int> findFreeNeighborCell (int CellID);
+
+namespace GA_planner
+{
 int value;
 int mapSize;
-//bool* OGM;
-//static const float INFINIT_COST = INT_MAX; //!< cost of non connected nodes
-//float infinity = std::numeric_limits< float >::infinity();
+bool* OGM;
+static const float INFINIT_COST = INT_MAX; //!< cost of non connected nodes
+float infinity = std::numeric_limits< float >::infinity();
 float tBreak;  // coefficient for breaking ties
 //ofstream MyExcelFile ("RA_result.xlsx", ios::trunc);
 
@@ -41,11 +48,7 @@ timespec diff(timespec start, timespec end)
   return temp;
 }
 
-
-//inline vector <int> findFreeNeighborCell (int CellID);
-
-namespace GA_planner
-{
+PLUGINLIB_EXPORT_CLASS(GA_planner::GAPlanner, nav_core::BaseGlobalPlanner)
 
 
 
@@ -62,6 +65,7 @@ GAPlanner::GAPlanner(ros::NodeHandle &nh)
 
 GAPlanner::GAPlanner(std::string name, costmap_2d::Costmap2DROS* costmap_ros)
 {
+  //OGM=new OccupancyGridMap();
   initialize(name, costmap_ros);
 }
 
@@ -80,39 +84,36 @@ void GAPlanner::initialize(std::string name, costmap_2d::Costmap2DROS* costmap_r
     originY = costmap_->getOriginY();
 
 
-  //OGM = new OccupancyGridMap();
-  int numberOfIterations = 15;
-  uint populationSize = 15;
-  int crossoverType = 1; // 1: one point, 2: two point, 3: modified.
-  float crossoverProbability = 0.9;
-  float mutationProbability = 0.01;
-  int mutationIterationNumber = 50;
-  float minInitialPathCost = 0;
-  int radius = 2;
+  
+  
 
-  //ga=new GA(numberOfIterations, populationSize, crossoverType, crossoverProbability, mutationProbability, mutationIterationNumber, minInitialPathCost, radius);
-  ga->setNumberOfIterations(numberOfIterations);
-  ga->setPopulationSize(populationSize);
-  ga->setCrossoverProbability(crossoverProbability);
+
+  
+  /*ga->setCrossoverProbability(crossoverProbability);
   ga->setMutationProbability(mutationProbability);
   ga->setMutationIteration(mutationIterationNumber);
   ga->setRadius(radius);
+  ga->setPopulationSize(populationSize);
+  ga->setNumberOfIterations(numberOfIterations);*/
   width = costmap_->getSizeInCellsX();
-  OGM->setWidth(width);
+  //OGM->setWidth(width);
   height = costmap_->getSizeInCellsY();
-  OGM->setHeight(height);
+  //OGM->setHeight(height);
   resolution = costmap_->getResolution();
-  OGM->setResolution(resolution);
+  //OGM->setResolution(resolution);
+
   mapSize = width*height;
   tBreak = 1+1/(mapSize); 
   value =0;
 
 
-  //OGM = new bool [mapSize];
-  int** OGM_data;
-    for (unsigned int iy = 0; iy < costmap_->getSizeInCellsY(); iy++)
+  OGM_data = (int **)malloc(sizeof(int *) * height);
+  for (int i = 0; i < width; i++)
+    OGM_data[i] = (int *)malloc(sizeof(int) * width);
+  
+    for (unsigned int iy = 0; iy < height; iy++)
     {
-      for (unsigned int ix = 0; ix < costmap_->getSizeInCellsX(); ix++)
+      for (unsigned int ix = 0; ix < width; ix++)
       {
         unsigned int cost = static_cast<int>(costmap_->getCost(ix, iy));
         //cout<<cost;
@@ -128,7 +129,21 @@ void GAPlanner::initialize(std::string name, costmap_2d::Costmap2DROS* costmap_r
           OGM_data[iy][ix]=char(1+(97*(cost - 1))/251);
       }
     }
-  OGM->setMapLayout(OGM_data);
+
+      OGM = new bool [mapSize]; 
+    for (unsigned int iy = 0; iy < costmap_->getSizeInCellsY(); iy++)
+    {
+      for (unsigned int ix = 0; ix < costmap_->getSizeInCellsX(); ix++)
+      {
+        unsigned int cost = static_cast<int>(costmap_->getCost(ix, iy));
+        //cout<<cost;
+        if (cost == 0)
+          OGM[iy*width+ix]=true;
+        else
+          OGM[iy*width+ix]=false;
+      }
+    }
+  //OccupancyGridMap *OGM_t = new OccupancyGridMap(width, height, resolution, OGM_data, 1, 1);
 
 
   //MyExcelFile << "StartID\tStartX\tStartY\tGoalID\tGoalX\tGoalY\tPlannertime(ms)\tpathLength\tnumberOfCells\t" << endl;
@@ -201,7 +216,7 @@ bool GAPlanner::makePlan(const geometry_msgs::PoseStamped& start, const geometry
 
   // call global planner
 
-  if (ga->isStartAndGoalCellsValid(OGM,startCell, goalCell)){
+  if (isStartAndGoalCellsValid(startCell, goalCell)){
 
         vector<int> bestPath;
   bestPath.clear();
@@ -290,7 +305,7 @@ int GAPlanner::convertToCellIndex(float x, float y)
   float newX = x / resolution;
   float newY = y / resolution;
 
-  cellIndex = OGM->getCellIndex(newY, newX);
+  cellIndex = getCellIndex(newY, newX);
 
   return cellIndex;
 }
@@ -298,9 +313,9 @@ int GAPlanner::convertToCellIndex(float x, float y)
 void GAPlanner::convertToCoordinate(int index, float& x, float& y)
 {
 
-  x = OGM->getCellColID(index) * resolution;
+  x = getCellColID(index) * resolution;
 
-  y = OGM->getCellRowID(index) * resolution;
+  y = getCellRowID(index) * resolution;
 
   x = x + originX;
   y = y + originY;
@@ -334,17 +349,28 @@ vector<int> GAPlanner::GAplanner(int startCell, int goalCell){
 
 //for (uint i=0; i<mapSize; i++)
   //g_score[i]=infinity;
-
+  int numberOfIterations = 15;
+  uint populationSize = 15;
+  int crossoverType = 1; // 1: one point, 2: two point, 3: modified.
+  float crossoverProbability = 0.9;
+  float mutationProbability = 0.01;
+  int mutationIterationNumber = 50;
+  float minInitialPathCost = 0;
+  int radius = 2;
+  GA *ga=new GA(numberOfIterations, populationSize, crossoverType, crossoverProbability, mutationProbability, mutationIterationNumber, minInitialPathCost, radius);
+  OccupancyGridMap *OGM_t = new OccupancyGridMap(width, height, resolution, OGM_data, 1, 1);
    timespec time1;
   /* take current time here */
     Population* initialPopulation = new Population();
-    initialPopulation = ga->getInitialPopulation(OGM, startCell,goalCell);
+    initialPopulation = ga->getInitialPopulation(OGM_t, startCell,goalCell);
     if (initialPopulation->getPopulation().size() > 0) 
     {
-       bestPath=ga->findPath(OGM, initialPopulation, time1);
+       bestPath=ga->findPath(OGM_t, initialPopulation, time1);
+
     }
     else
       cout<<"Can not generate initial population, please choose different start or goal positions"<<endl;
+    ROS_INFO("GA planner done successfully");
 
 
    //cout<<"time to generate best global path by Relaxed A* = " << (diff(time1,time2).tv_sec)*1e3 + (diff(time1,time2).tv_nsec)*1e-6 << " microseconds" << endl;
@@ -497,7 +523,7 @@ float RAstarPlannerROS::calculateHCost(int cellID, int goalCell)
  * Check Status: Checked by Anis, Imen and Sahar
 *********************************************************************************/
 
-/*vector <int> GAPlanner::findFreeNeighborCell (int CellID){
+vector <int> GAPlanner::findFreeNeighborCell (int CellID){
  
   int rowID=getCellRowID(CellID);
   int colID=getCellColID(CellID);
@@ -515,7 +541,7 @@ float RAstarPlannerROS::calculateHCost(int cellID, int goalCell)
     }
     return  freeNeighborCells;
  
-}*/
+}
 
 /*******************************************************************************/
 //Function Name: isStartAndGoalCellsValid
@@ -523,7 +549,7 @@ float RAstarPlannerROS::calculateHCost(int cellID, int goalCell)
 //Output: true if the start and the goal cells are valid
 //Description: check if the start and goal cells are valid
 /*********************************************************************************/
-/*bool GAPlanner::isStartAndGoalCellsValid(int startCell,int goalCell)
+bool GAPlanner::isStartAndGoalCellsValid(int startCell,int goalCell)
 { 
  bool isvalid=true;
  bool isFreeStartCell=isFree(startCell);
@@ -616,7 +642,7 @@ float RAstarPlannerROS::calculateHCost(int cellID, int goalCell)
   //verify if the cell(i,j) is free
  bool  GAPlanner::isFree(int CellID){
  return OGM[CellID];
- } */
+ } 
 }
 ;
 

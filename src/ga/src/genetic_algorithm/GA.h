@@ -66,15 +66,16 @@ public:
 	* @brief Destructor
 	*/
 	~GA (void);
-
+	//void setNumberOfIterations(int numberOfIterations);
 	void setPopulationSize(uint populationS);
 	void setCrossoverType(int crossType);
 	void setCrossoverProbability(float crossProb);
 	void setMutationProbability(float mutationProb);
 	void setMutationIteration(int mutationIterationNumber);
 	void setMinimumInitialPathCost (float minimumInitialPathCost);
-	void setRadius(int radius);
-
+	void setRadius(int radius_);
+	
+	//int getNumberOfIterations();
 	uint getPopulationSize();
 	int getCrossoverType();
 	float getCrossoverProbability();
@@ -261,6 +262,7 @@ public:
 	timespec diff(timespec start, timespec end);
 
 private:
+	int numberOfIterationS;
 	uint populationSize; //!< The number of paths in one population
 	int crossoverType; //!< To specify the crossover type; 1: one-point crossover; 2: two-point crossover; 3: modified crossover; the default is 1.
 	float crossoverProbability; //!< [0 - 1], typically it should be in range [0.7 - 1]

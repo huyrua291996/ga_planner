@@ -114,7 +114,7 @@ catkin_package(
    INCLUDE_DIRS include
    LIBRARIES ga
    CATKIN_DEPENDS nav_core roscpp rospy std_msgs costmap_2d dynamic_reconfigure geometry_msgs navfn nav_msgs pluginlib
-#  DEPENDS system_lib
+   #DEPENDS system_lib
 )
 
 ###########
@@ -130,7 +130,7 @@ include_directories(
 
 ## Declare a C++ library
 add_library(ga_planner_lib src/GA_ROS.cpp src/genetic_algorithm/Population.cpp 
- src/genetic_algorithm/GA.cpp src/genetic_algorithm/CrossPoint.cpp  src/path/Path.cpp src/maps/Map.h src/maps/Map.cpp 
+ src/genetic_algorithm/GA.cpp src/genetic_algorithm/CrossPoint.cpp  src/path/Path.cpp src/maps/Map.cpp 
  src/maps/OccupancyGridMap.cpp  src/generic_path_planner/GenericPathPlanner.cpp)
 
 
